@@ -4,7 +4,7 @@ clear robot Tsim q0 qdot0 t q qdot p
 mdl_puma560
 robot = p560;
 
-Tsim = 10;   % Simulation time
+Tsim = 5;   % Simulation time
 q0 = qn;    % Initial config
 qdot0 = q0*0;   % Initial velocity
 
@@ -23,3 +23,16 @@ plot(t, squeeze(p(1:3,4,:)))
 xlabel('Time [s]')
 ylabel('Cartesian position [m]')
 legend({'x', 'y', 'z'});
+
+figure
+subplot(2,1,1)
+plot(t, tau)
+xlabel('Time [s]')
+ylabel('Joint Torques [Nm]')
+
+subplot(2,1,2)
+plot(t, q)
+xlabel('Time [s]')
+ylabel('Joint Positions [rad]')
+
+robot.plot(q)

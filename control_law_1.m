@@ -77,8 +77,9 @@ tau1 = quadprog(Q3,c3,[],[],A3,b3, taumin, taumax, [], opt);
 tau = tau1';
 
 
-
-
+if mod(t,1) == 0
+    t
+end
 
 
 

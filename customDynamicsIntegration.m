@@ -1,6 +1,6 @@
 function [t, q, qdot, tau] = customDynamicsIntegration(robot, T, TAUFUN, q0, qdot0)
 
-dt = 0.01;
+dt = 0.002;
 t = 0:dt:T; t = t(:);
 q(length(t), robot.n) = 0;
 qdot(length(t), robot.n) = 0;
