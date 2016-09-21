@@ -1,4 +1,5 @@
-clear robot Tsim q0 qdot0 t q qdot p
+clear all
+clc
 
 % Declare serial manipulator
 mdl_puma560
@@ -9,7 +10,10 @@ q0 = qn;    % Initial config
 qdot0 = q0*0;   % Initial velocity
 
 % With QP
-[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1, q0, qdot0);
+%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1, q0, qdot0);
+
+% With QP reformulated
+[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1b, q0, qdot0);
 
 %Without QP
 %[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_2, q0, qdot0)
@@ -35,4 +39,5 @@ plot(t, q)
 xlabel('Time [s]')
 ylabel('Joint Positions [rad]')
 
+figure
 robot.plot(q)
