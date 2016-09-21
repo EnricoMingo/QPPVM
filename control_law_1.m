@@ -11,7 +11,6 @@ function tau = control_law_1(robot, t, q, qdot)
 %     (pinv_J_B)'*tau = (pinv_J_B)'*tau_
 % where tau_ = argmin F of the previous task.
 
-t
 
 %% Actual information from the robot
 Tq = robot.fkine(q); % pose
@@ -69,7 +68,7 @@ tau1 = quadprog(Q2,c2,[],[],A2,b2,taumin, taumax,[], opt);
 %f2_opt = J2pinv'*tau1;
 
 % Solution of a Third Task in Joint space (Joint Torque minimzation)
-Q3 = eye(6);
+Q3 = eye(6)*Binv;
 c3 = zeros(6,1);
 A3 = [J1pinv'; J2pinv']; %Optimality Condition
 b3 = A3*tau1; %Optimality Condition
