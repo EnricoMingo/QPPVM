@@ -1,4 +1,4 @@
-function tau = control_law_1(robot, t, q, qdot)
+function tau = control_law_1(robot, t, q, qdot, io)
 %% control_law_1 
 % Uses a QP to solve the problem to find joint torques that realizes a
 % certain Cartesian Force at the end-effector considering also low priority

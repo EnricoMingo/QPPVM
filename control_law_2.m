@@ -1,4 +1,4 @@
-function tau = control_law_2(robot, t, q, qdot)
+function tau = control_law_2(robot, t, q, qdot, io)
 %% control_law_2
 % Uses
 %      tau = J'f

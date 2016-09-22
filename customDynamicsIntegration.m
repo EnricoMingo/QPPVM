@@ -1,4 +1,4 @@
-function [t, q, qdot, tau] = customDynamicsIntegration(robot, T, TAUFUN, q0, qdot0)
+function [t, q, qdot, tau] = customDynamicsIntegration(robot, T, TAUFUN, q0, qdot0, io)
 
 dt = 0.002;
 t = 0:dt:T; t = t(:);
@@ -12,7 +12,7 @@ qdot(1,:) = qdot0(:)';
 for k = 1:length(t)
     
 
-    tau(k, :) = TAUFUN(robot, t(k), q(k,:), qdot(k,:));
+    tau(k, :) = TAUFUN(robot, t(k), q(k,:), qdot(k,:), io);
     
     if k ~= length(t)
         qddot = robot.accel(q(k,:), qdot(k,:), tau(k, :));

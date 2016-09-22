@@ -9,17 +9,23 @@ Tsim = 5;   % Simulation time
 q0 = qn;    % Initial config
 qdot0 = q0*0;   % Initial velocity
 
+% I/O handler
+io = ControllerIO();
+
+% Initial configuration inertia matrix
+io.Data.B0 = robot.inertia(q0);
+
 % With QP
-%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1, q0, qdot0);
+%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1, q0, qdot0, io);
 
 % With QP reformulated
-% [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1b, q0, qdot0);
+% [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1b, q0, qdot0, io);
 
 % With QP reformulated, qpOASES solver
-[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1b_qpOASES, q0, qdot0);
+[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1b_qpOASES, q0, qdot0, io);
 
 %Without QP
-%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_2, q0, qdot0);
+%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_2, q0, qdot0, io);
 
 % Compute FK
 p = p560.fkine(q);
