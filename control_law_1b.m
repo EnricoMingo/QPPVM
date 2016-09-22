@@ -63,8 +63,10 @@ tau1 = quadprog(Q2,c2,[],[],A2,b2,taumin, taumax,[], opt);
 %f2_opt = J2pinv'*tau1;
 
 % Solution of a Third Task in Joint space (Joint Torque minimzation)
+D = 100;
+tau0 = -D*qdot;
 Q3 = eye(6)*Binv;
-c3 = zeros(6,1);
+c3 = -tau0*Binv;
 A3 = [J1*Binv; J2*Binv]; %Optimality Condition
 b3 = A3*tau1; %Optimality Condition
 tau1 = quadprog(Q3,c3,[],[],A3,b3, taumin, taumax, [], opt);
