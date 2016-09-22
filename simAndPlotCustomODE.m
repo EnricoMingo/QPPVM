@@ -2,7 +2,7 @@ clear all
 clc
 
 % Declare serial manipulator
-mdl_puma560
+mdl_puma560_custom
 robot = p560;
 
 Tsim = 5;   % Simulation time
