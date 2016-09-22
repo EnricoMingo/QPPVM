@@ -1,28 +1,35 @@
 function tau = control_law_2(robot, t, q, qdot)
+%% control_law_2
+% Uses
+%      tau = J'f
+% to find joint torques that realizes a certain Cartesian Force 
+% at the end-effector considering also low priority tasks (using
+% the classical Null-Space Projection.
 
-t
-
-period = 2;
-amplitude = 0.3;
-Kp1 = 15000;
-Kd1 = 300;
-Kp2 = 15000;
-Kd2 = 400;
+%% Actual information from the robot
 Tq = robot.fkine(q);
 J = robot.jacob0(q);
 B = robot.inertia(q);
+%B = eye(6,6);
 Binv = inv(B);
-taumax = [1 1 1 1 1 1]'*100;
-taumin = -taumax;
-opt = optimoptions('quadprog', 'Display', 'off');
 
+%% Reference Trajectory for Main Task (the main task is a Cartesian Position Trj Task)
+period = 2;
+amplitude = 0.3;
 x1ref = amplitude*sin(2*pi/period*t);
+
+Kp1 = 15000;
+Kd1 = 300;
 x1 = Tq(3,4);
 J1 = J(3,:);
 B1 = inv(J1*Binv*J1');
 J1pinv = Binv*J1'*B1;
 x1dot = J1*qdot';
 f1 = -Kp1*(x1-x1ref) - Kd1*x1dot;
+
+%% Reference for Secondary task (the secondary task is a Cartesian Position Task)
+Kp2 = 15000;
+Kd2 = 400;
 
 x2ref = [0.2 0.2]';
 x2 = Tq(1:2,4);
@@ -42,9 +49,9 @@ tau = J1'*f1 + P1*tau0;
 tau = tau';
 
 
-
-
-
+if mod(t,1) == 0
+    t
+end
 
 
 end

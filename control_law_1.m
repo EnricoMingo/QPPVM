@@ -16,6 +16,7 @@ function tau = control_law_1(robot, t, q, qdot)
 Tq = robot.fkine(q); % pose
 J = robot.jacob0(q); % Jacobian
 B = robot.inertia(q); % Inertia
+%B = eye(6,6);
 Binv = inv(B); 
 taumax = [1 1 1 1 1 1]'*100; % Max allowed torques
 taumin = -taumax; % Min allowed torques
