@@ -16,6 +16,7 @@ function tau = control_law_1b(robot, t, q, qdot)
 Tq = robot.fkine(q); % pose
 J = robot.jacob0(q); % Jacobian
 B = robot.inertia(q); % Inertia
+%B = eye(6,6);
 Binv = inv(B); 
 taumax = [1 1 1 1 1 1]'*100; % Max allowed torques
 taumin = -taumax; % Min allowed torques
@@ -62,8 +63,10 @@ tau1 = quadprog(Q2,c2,[],[],A2,b2,taumin, taumax,[], opt);
 %f2_opt = J2pinv'*tau1;
 
 % Solution of a Third Task in Joint space (Joint Torque minimzation)
+D = 100;
+tau0 = -D*qdot;
 Q3 = eye(6)*Binv;
-c3 = zeros(6,1);
+c3 = -tau0*Binv;
 A3 = [J1*Binv; J2*Binv]; %Optimality Condition
 b3 = A3*tau1; %Optimality Condition
 tau1 = quadprog(Q3,c3,[],[],A3,b3, taumin, taumax, [], opt);
