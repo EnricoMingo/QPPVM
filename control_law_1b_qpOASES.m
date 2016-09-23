@@ -15,10 +15,15 @@ function tau = control_law_1b_qpOASES(robot, t, q, qdot, io)
 %% Actual information from the robot
 Tq = robot.fkine(q); % pose
 J = robot.jacob0(q); % Jacobian
+
 B = robot.inertia(q); % Inertia
 Binv = inv(B); 
-taumax = [1 1 1 1 1 1]'*100; % Max allowed torques
+g = robot.gravload(q)';
+
+taumax = [1 1 1 1 1 1]'*100 - g; % Max allowed torques
 taumin = -taumax; % Min allowed torques
+
+
 
 %% Reference Trajectory for Main Task (the main task is a Cartesian Position Trj Task)
 period = 2;
@@ -62,16 +67,22 @@ tau1 = qpOASES(Q2,c2,A2,taumin,taumax,b2,b2);
 %f2_opt = J2pinv'*tau1;
 
 % Solution of a Third Task in Joint space (Joint Torque minimzation)
+K = 1000;
+D = 100;
+tau0 = K*(io.Data.q0-q)-D*qdot;
 Q3 = eye(6)*Binv;
-c3 = zeros(6,1);
+c3 = -tau0*Binv;
 A3 = [J1*Binv; J2*Binv]; %Optimality Condition
 b3 = A3*tau1; %Optimality Condition
-tau1 = qpOASES(Q3,c3,A3,taumin,taumax,b3,b3);
+tau1 = qpOASES(Q3,c3',A3,taumin,taumax,b3,b3);
 
-tau = tau1';
+tau = tau1' + g';
 
 
-t
+if mod(t,1) == 0
+    t
+end
+
 
 
 end
