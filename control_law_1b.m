@@ -20,6 +20,10 @@ B = robot.inertia(q); % Inertia
 Binv = inv(B); 
 taumax = [1 1 1 1 1 1]'*100; % Max allowed torques
 taumin = -taumax; % Min allowed torques
+if t == 0
+    io.Data.taumax = taumax;
+    io.Data.taumin = taumin;
+end
 
 %% Reference Trajectory for Main Task (the main task is a Cartesian Position Trj Task)
 period = 2;
@@ -43,6 +47,9 @@ x2 = Tq(1:2,4);
 J2 = J(1:2,:);
 x2dot = J2*qdot';
 f2 = -Kp2*(x2-x2ref) - Kd2*x2dot;
+
+xref = [x2ref; x1ref];
+io.Data.xref = [io.Data.xref xref];
 
 %% Solution using QP
 opt = optimoptions('quadprog', 'Display', 'off', 'Algorithm', 'active-set');

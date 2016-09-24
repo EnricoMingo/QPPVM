@@ -39,6 +39,9 @@ J2pinv = Binv*J2'*B2;
 x2dot = J2*qdot';
 f2 = -Kp2*(x2-x2ref) - Kd2*x2dot;
 
+xref = [x2ref; x1ref];
+io.Data.xref = [io.Data.xref xref];
+
 P1 = (eye(robot.n) - J1'*J1pinv'); % First task nullspace projector
 TMP = J2pinv'*P1;
 tau0 = pinv(TMP)*(f2-J2pinv'*J1'*f1);

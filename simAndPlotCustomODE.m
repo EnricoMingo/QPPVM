@@ -15,15 +15,16 @@ io = ControllerIO();
 % Initial configuration inertia matrix
 io.Data.B0 = robot.inertia(q0);
 io.Data.q0 = q0;
+io.Data.xref = []
 
 % With QP
-%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1, q0, qdot0, io);
+[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1, q0, qdot0, io);
 
 % With QP reformulated
 % [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1b, q0, qdot0, io);
 
 % With QP reformulated, qpOASES solver
-[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1b_qpOASES, q0, qdot0, io);
+%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1b_qpOASES, q0, qdot0, io);
 
 %Without QP
 %[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_2, q0, qdot0, io);
@@ -33,19 +34,15 @@ p = p560.fkine(q);
 
 % Plot
 figure
-plot(t, squeeze(p(1:3,4,:)))
+plot(t, squeeze(p(1:3,4,:))); hold on;
+plot(t, io.Data.xref, '--');
 xlabel('Time [s]')
 ylabel('Cartesian position [m]')
-legend({'x', 'y', 'z'});
+legend({'x', 'y', 'z', 'x ref', 'y ref', 'z ref'});
 
 figure
-t = 0:0.002:Tsim;
-period = 2;
-amplitude = 0.3;
-x1ref = amplitude*sin(2*pi/period*t);
-x1_error = x1ref - squeeze(p(3,4,:))';
-x2ref = [0.2 0.2]';
-x2_error = repmat(x2ref',length(squeeze(p(1:2,4,:))'),1) - squeeze(p(1:2,4,:))';
+x1_error = io.Data.xref(3,:) - squeeze(p(3,4,:))';
+x2_error = io.Data.xref(1:2,:)' - squeeze(p(1:2,4,:))';
 plot(t, [x2_error x1_error']);
 xlabel('Time [s]')
 ylabel('Cartesian position error [m]')
