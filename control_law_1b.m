@@ -15,6 +15,7 @@ function tau = control_law_1b(robot, t, q, qdot, io)
 %% Actual information from the robot
 Tq = robot.fkine(q); % pose
 J = robot.jacob0(q); % Jacobian
+io.Data.JacobRank = [io.Data.JacobRank rank(J)];
 B = robot.inertia(q); % Inertia
 %B = eye(6,6);
 Binv = inv(B); 

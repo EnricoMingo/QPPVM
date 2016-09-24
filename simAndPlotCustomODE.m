@@ -15,7 +15,8 @@ io = ControllerIO();
 % Initial configuration inertia matrix
 io.Data.B0 = robot.inertia(q0);
 io.Data.q0 = q0;
-io.Data.xref = []
+io.Data.xref = [];
+io.Data.JacobRank = [];
 
 % With QP
 [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1, q0, qdot0, io);
