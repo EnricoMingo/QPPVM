@@ -15,8 +15,8 @@ function tau = control_law_1b_qpOASES(robot, t, q, qdot, io)
 %% Actual information from the robot
 Tq = robot.fkine(q); % pose
 J = robot.jacob0(q); % Jacobian
-
-B = robot.inertia(q); % Inertia
+B = eye(6,6);
+%B = robot.inertia(q); % Inertia
 Binv = inv(B); 
 
 taumax = [1 1 1 1 1 1]'*100;% Max allowed torques
@@ -56,8 +56,6 @@ xref = [x2ref; x1ref];
 io.Data.xref = [io.Data.xref xref];
 
 %% Solution using QP
-opt = optimoptions('quadprog', 'Display', 'off', 'Algorithm', 'active-set');
-
 % Solution of Main Task
 Q1 = Binv*J1'*J1*Binv;
 c1 = -Binv*J1'*J1*Binv*J1'*f1;
@@ -75,7 +73,7 @@ tau1 = qpOASES(Q2,c2,A2,umin,umax,b2,b2);
 
 % Solution of a Third Task in Joint space (Joint Torque minimzation)
 K = 1000;
-D = 500;
+D = 100;
 tau0 = K*(zeros(1,6)-q)-D*qdot;
 Q3 = eye(6)*Binv;
 c3 = -tau0*Binv;

@@ -72,4 +72,4 @@ for i = 1:1:6
 end
 
 figure
-robot.plot(q)
+robot.plot(q(1:10:end,:))
