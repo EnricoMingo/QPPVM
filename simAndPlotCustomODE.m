@@ -5,7 +5,9 @@ clc
 mdl_puma560_custom
 robot = p560;
 
+dt = 0.002;
 Tsim = 5;   % Simulation time
+qn(3) = -qn(3); %Third joint in home configuration is outside joint limits!
 q0 = qn;    % Initial config
 qdot0 = q0*0;   % Initial velocity
 
@@ -16,19 +18,19 @@ io = ControllerIO();
 io.Data.B0 = robot.inertia(q0);
 io.Data.q0 = q0;
 io.Data.xref = [];
-io.Data.JacobRank = [];
+io.Data.dt = dt;
 
 % With QP
-[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1, q0, qdot0, io);
+%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1, q0, qdot0, io);
 
 % With QP reformulated
-% [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1b, q0, qdot0, io);
+% [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b, q0, qdot0, io);
 
 % With QP reformulated, qpOASES solver
-%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_1b_qpOASES, q0, qdot0, io);
+[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b_qpOASES, q0, qdot0, io);
 
 %Without QP
-%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, @control_law_2, q0, qdot0, io);
+%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_2, q0, qdot0, io);
 
 % Compute FK
 p = p560.fkine(q);
@@ -50,15 +52,24 @@ ylabel('Cartesian position error [m]')
 legend({'x', 'y', 'z'});
 
 figure
-subplot(2,1,1)
 plot(t, tau)
 xlabel('Time [s]')
 ylabel('Joint Torques [Nm]')
 
-subplot(2,1,2)
-plot(t, q)
-xlabel('Time [s]')
-ylabel('Joint Positions [rad]')
+qmin = robot.qlim(:,1);
+qmax = robot.qlim(:,2);
+qmin = qmin';
+qmax = qmax';
+qmin = repmat(qmin, length(q),1);
+qmax = repmat(qmax, length(q),1);
+
+figure
+for i = 1:1:6
+    subplot(3,2,i)
+    plot(t, q(:,i)); hold on; plot(t, qmin(:,i), '--'); hold on; plot(t, qmax(:,i), '--');
+    xlabel('Time [s]')
+    ylabel('Joint Positions [rad]')
+end
 
 figure
 robot.plot(q)

@@ -15,16 +15,20 @@ function tau = control_law_1(robot, t, q, qdot, io)
 %% Actual information from the robot
 Tq = robot.fkine(q); % pose
 J = robot.jacob0(q); % Jacobian
-io.Data.JacobRank = [io.Data.JacobRank rank(J)];
-B = robot.inertia(q); % Inertia
+
 %B = eye(6,6);
+B = robot.inertia(q); % Inertia
 Binv = inv(B); 
+
+%% Torque Limits Constr
 taumax = [1 1 1 1 1 1]'*100; % Max allowed torques
 taumin = -taumax; % Min allowed torques
 if t == 0
     io.Data.taumax = taumax;
     io.Data.taumin = taumin;
 end
+umin = taumin;
+umax = taumax;
 
 %% Reference Trajectory for Main Task (the main task is a Cartesian Position Trj Task)
 period = 2;
@@ -63,7 +67,11 @@ Q1 = J1pinv*J1pinv';
 c1 = -f1'*J1pinv';
 A1 = [];
 b1 = [];
-tau1 = quadprog(Q1,c1,[],[],A1,b1,taumin, taumax,[],opt);
+[tau1,fval,exitflag,output,lambda] = quadprog(Q1,c1,[],[],A1,b1,umin, umax,[],opt);
+% if exitflag ~= 1
+%     disp('First Task');
+%     exitflag
+% end
 
 % Solution of the Secondary Task
 B2 = inv(J2*Binv*J2');
@@ -73,19 +81,26 @@ Q2 = J2pinv*J2pinv';
 c2 = -f2'*J2pinv';
 A2 = J1pinv'; % Optimality condition
 b2 = J1pinv'*tau1; % Optimality condition
-tau1 = quadprog(Q2,c2,[],[],A2,b2,taumin, taumax,[], opt);
+[tau1,fval,exitflag,output,lambda] = quadprog(Q2,c2,[],[],A2,b2,umin, umax,[], opt);
+% if exitflag ~= 1
+%     disp('Second Task');
+%     exitflag
+% end
 %f2_opt = J2pinv'*tau1;
 
 % Solution of a Third Task in Joint space (Joint Torque minimzation)
-K = 1000;
-D = 100;
+K = 4000;
+D = 400;
 tau0 = K*(io.Data.q0-q)-D*qdot;
 Q3 = eye(6)*Binv;
 c3 = -tau0*Binv;
 A3 = [J1pinv'; J2pinv']; %Optimality Condition
 b3 = A3*tau1; %Optimality Condition
-tau1 = quadprog(Q3,c3,[],[],A3,b3, taumin, taumax, [], opt);
-
+[tau1,fval,exitflag,output,lambda] = quadprog(Q3,c3,[],[],A3,b3, umin, umax, [], opt);
+% if exitflag ~= 1
+%     disp('Third Task');
+%     exitflag
+% end
 tau = tau1';
 
 

@@ -18,15 +18,15 @@ J = robot.jacob0(q); % Jacobian
 
 B = robot.inertia(q); % Inertia
 Binv = inv(B); 
-g = robot.gravload(q)';
 
-taumax = [1 1 1 1 1 1]'*100 - g; % Max allowed torques
+taumax = [1 1 1 1 1 1]'*100;% Max allowed torques
 taumin = -taumax; % Min allowed torques
 if t == 0
     io.Data.taumax = taumax;
     io.Data.taumin = taumin;
 end
-
+umin = taumin;
+umax = taumax;
 
 
 %% Reference Trajectory for Main Task (the main task is a Cartesian Position Trj Task)
@@ -63,27 +63,27 @@ Q1 = Binv*J1'*J1*Binv;
 c1 = -Binv*J1'*J1*Binv*J1'*f1;
 A1 = [];
 b1 = [];
-tau1 = qpOASES(Q1,c1,[],taumin,taumax,[],[]);
+tau1 = qpOASES(Q1,c1,[],umin,umax,[],[]);
 
 % Solution of the Secondary Task
 Q2 = Binv*J2'*J2*Binv;
 c2 = -Binv*J2'*J2*Binv*J2'*f2;
 A2 = J1*Binv; % Optimality condition
 b2 = J1*Binv*tau1; % Optimality condition
-tau1 = qpOASES(Q2,c2,A2,taumin,taumax,b2,b2);
+tau1 = qpOASES(Q2,c2,A2,umin,umax,b2,b2);
 %f2_opt = J2pinv'*tau1;
 
 % Solution of a Third Task in Joint space (Joint Torque minimzation)
 K = 1000;
-D = 100;
-tau0 = K*(io.Data.q0-q)-D*qdot;
+D = 500;
+tau0 = K*(zeros(1,6)-q)-D*qdot;
 Q3 = eye(6)*Binv;
 c3 = -tau0*Binv;
 A3 = [J1*Binv; J2*Binv]; %Optimality Condition
 b3 = A3*tau1; %Optimality Condition
-tau1 = qpOASES(Q3,c3',A3,taumin,taumax,b3,b3);
+tau1 = qpOASES(Q3,c3',A3,umin,umax,b3,b3);
 
-tau = tau1' + g';
+tau = tau1';
 
 
 if mod(t,1) == 0
