@@ -1,3 +1,4 @@
+close all
 clear all
 clc
 
@@ -19,6 +20,9 @@ io.Data.B0 = robot.inertia(q0);
 io.Data.q0 = q0;
 io.Data.xref = [];
 io.Data.dt = dt;
+io.Data.fval1 = [];
+io.Data.fval2 = [];
+io.Data.fval3 = [];
 
 % With QP
 %[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1, q0, qdot0, io);

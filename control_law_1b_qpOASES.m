@@ -15,8 +15,10 @@ function tau = control_law_1b_qpOASES(robot, t, q, qdot, io)
 %% Actual information from the robot
 Tq = robot.fkine(q); % pose
 J = robot.jacob0(q); % Jacobian
-B = eye(6,6);
-%B = robot.inertia(q); % Inertia
+%B = eye(6,6);
+B = robot.inertia(q); % Inertia
+%C = robot.coriolis(q,qdot)*qdot';
+%g = robot.gravload(q);
 Binv = inv(B); 
 
 taumax = [1 1 1 1 1 1]'*100;% Max allowed torques
@@ -40,38 +42,49 @@ Kd1 = 300;
 x1 = Tq(3,4);
 J1 = J(3,:);
 x1dot = J1*qdot';
-f1 = -Kp1*(x1-x1ref) - Kd1*x1dot;
+%Jdot = robot.jacob_dot(q,qdot);
+%u = (Binv*J1'*inv(J1*Binv*J1'))'*C-inv(J1*Binv*J1')*Jdot(3,:);
+%p = (Binv*J1'*inv(J1*Binv*J1'))'*g';
+f1 = -Kp1*(x1-x1ref) - Kd1*x1dot;% + u + p;
+
 
 %% Reference for Secondary task (the secondary task is a Cartesian Position Task)
 Kp2 = 15000;
 Kd2 = 400;
 
-x2ref = [0.2 0.2]';
+%x2ref = [0.2 0.2]';
+x2ref = [1.0 1.0]';
 x2 = Tq(1:2,4);
 J2 = J(1:2,:);
 x2dot = J2*qdot';
 f2 = -Kp2*(x2-x2ref) - Kd2*x2dot;
 
-xref = [x2ref; x1ref];
+xref = [x2ref(1:2); x1ref];
 io.Data.xref = [io.Data.xref xref];
 
 %% Solution using QP
+options = qpOASES_options( 'MPC' );
+%options = qpOASES_options( 'reliable' );
+%options = qpOASES_options( 'default' );
+
 % Solution of Main Task
 Q1 = Binv*J1'*J1*Binv;
 c1 = -Binv*J1'*J1*Binv*J1'*f1;
 A1 = [];
 b1 = [];
-tau1 = qpOASES(Q1,c1,[],umin,umax,[],[]);
+[tau1,fval,exitflag,iter,lambda,auxOutput] = qpOASES(Q1,c1,[],umin,umax,[],[], options);
+io.Data.fval1 = [io.Data.fval1 fval];
 
-% Solution of the Secondary Task
+
+% % Solution of the Secondary Task
 Q2 = Binv*J2'*J2*Binv;
 c2 = -Binv*J2'*J2*Binv*J2'*f2;
 A2 = J1*Binv; % Optimality condition
 b2 = J1*Binv*tau1; % Optimality condition
-tau1 = qpOASES(Q2,c2,A2,umin,umax,b2,b2);
-%f2_opt = J2pinv'*tau1;
+[tau1,fval,exitflag,iter,lambda,auxOutput] = qpOASES(Q2,c2,A2,umin,umax,b2,b2, options);
+io.Data.fval2 = [io.Data.fval2 fval];
 
-% Solution of a Third Task in Joint space (Joint Torque minimzation)
+% % Solution of a Third Task in Joint space (Joint Torque minimzation)
 K = 1000;
 D = 100;
 tau0 = K*(zeros(1,6)-q)-D*qdot;
@@ -79,9 +92,11 @@ Q3 = eye(6)*Binv;
 c3 = -tau0*Binv;
 A3 = [J1*Binv; J2*Binv]; %Optimality Condition
 b3 = A3*tau1; %Optimality Condition
-tau1 = qpOASES(Q3,c3',A3,umin,umax,b3,b3);
+[tau1,fval,exitflag,iter,lambda,auxOutput] = qpOASES(Q3,c3',A3,umin,umax,b3,b3, options);
+io.Data.fval3 = [io.Data.fval3 fval];
 
-tau = tau1';
+tau = tau1';% + C' + g;
+
 
 
 if mod(t,1) == 0
