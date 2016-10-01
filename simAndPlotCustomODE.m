@@ -36,6 +36,10 @@ io.Data.fval3 = [];
 %Without QP
 %[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_2, q0, qdot0, io);
 
+%Without QP
+%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_0, q0, qdot0, io);
+
+
 % Compute FK
 p = p560.fkine(q);
 

@@ -85,15 +85,15 @@ b2 = J1*Binv*tau1; % Optimality condition
 io.Data.fval2 = [io.Data.fval2 fval];
 
 % % Solution of a Third Task in Joint space (Joint Torque minimzation)
-K = 1000;
-D = 100;
-tau0 = K*(zeros(1,6)-q)-D*qdot;
-Q3 = eye(6)*Binv;
-c3 = -tau0*Binv;
-A3 = [J1*Binv; J2*Binv]; %Optimality Condition
-b3 = A3*tau1; %Optimality Condition
-[tau1,fval,exitflag,iter,lambda,auxOutput] = qpOASES(Q3,c3',A3,umin,umax,b3,b3, options);
-io.Data.fval3 = [io.Data.fval3 fval];
+% K = 1000;
+% D = 100;
+% tau0 = K*(zeros(1,6)-q)-D*qdot;
+% Q3 = eye(6)*Binv;
+% c3 = -tau0*Binv;
+% A3 = [J1*Binv; J2*Binv]; %Optimality Condition
+% b3 = A3*tau1; %Optimality Condition
+% [tau1,fval,exitflag,iter,lambda,auxOutput] = qpOASES(Q3,c3',A3,umin,umax,b3,b3, options);
+% io.Data.fval3 = [io.Data.fval3 fval];
 
 tau = tau1';% + C' + g;
 
