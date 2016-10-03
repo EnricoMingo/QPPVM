@@ -31,13 +31,13 @@ io.Data.fval3 = [];
 % [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b, q0, qdot0, io);
 
 % With QP reformulated, qpOASES solver
-[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b_qpOASES, q0, qdot0, io);
+%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b_qpOASES, q0, qdot0, io);
 
 %Without QP
 %[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_2, q0, qdot0, io);
 
 %Without QP
-%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_0, q0, qdot0, io);
+[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_0, q0, qdot0, io);
 
 
 % Compute FK
@@ -45,24 +45,29 @@ p = p560.fkine(q);
 
 % Plot
 figure
-plot(t, squeeze(p(1:3,4,:))); hold on;
-plot(t, io.Data.xref, '--');
-xlabel('Time [s]')
-ylabel('Cartesian position [m]')
-legend({'x', 'y', 'z', 'x ref', 'y ref', 'z ref'});
+plot(t, squeeze(p(1:3,4,:)),'LineWidth', 2.); hold on;
+plot(t, io.Data.xref, '--', 'LineWidth', 2.);
+xlabel('Time [s]','FontSize',15)
+ylabel('Cartesian position [m]','FontSize',15)
+AX = legend({'x', 'y', 'z'});
+set(AX,'FontSize',15)
+set(gca,'FontSize',15)
 
 figure
 x1_error = io.Data.xref(3,:) - squeeze(p(3,4,:))';
 x2_error = io.Data.xref(1:2,:)' - squeeze(p(1:2,4,:))';
-plot(t, [x2_error x1_error']);
-xlabel('Time [s]')
-ylabel('Cartesian position error [m]')
-legend({'x', 'y', 'z'});
+plot(t, [x2_error x1_error'],'LineWidth', 2.);
+xlabel('Time [s]','FontSize',15)
+ylabel('Cartesian position error [m]','FontSize',15)
+AX = legend({'x', 'y', 'z'});
+set(AX,'FontSize',15)
+set(gca,'FontSize',15)
 
 figure
-plot(t, tau)
-xlabel('Time [s]')
-ylabel('Joint Torques [Nm]')
+plot(t, tau,'LineWidth', 2.)
+xlabel('Time [s]','FontSize',15)
+ylabel('Joint Torques [Nm]','FontSize',15)
+set(gca,'FontSize',15)
 
 qmin = robot.qlim(:,1);
 qmax = robot.qlim(:,2);
