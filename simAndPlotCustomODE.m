@@ -7,9 +7,9 @@ mdl_puma560_custom
 robot = p560;
 
 dt = 0.002;
-Tsim = 5;   % Simulation time
+Tsim = 0.8;   % Simulation time
 qn(3) = -qn(3); %Third joint in home configuration is outside joint limits!
-q0 = qn;    % Initial config
+q0 = qn*1.1;  % Initial config
 qdot0 = q0*0;   % Initial velocity
 
 % I/O handler
@@ -18,11 +18,21 @@ io = ControllerIO();
 % Initial configuration inertia matrix
 io.Data.B0 = robot.inertia(q0);
 io.Data.q0 = q0;
+io.Data.J_previous = robot.jacob0(q0);
+io.Data.JacobRank = [];
+io.Data.t_previous = 0;
 io.Data.xref = [];
 io.Data.dt = dt;
 io.Data.fval1 = [];
 io.Data.fval2 = [];
 io.Data.fval3 = [];
+io.Data.e1 = [];
+io.Data.e2 = [];
+io.Data.normM1pinv = [];
+io.Data.normA1pinv = [];
+io.Data.rankM1 = [];
+io.Data.rankA1 = [];
+io.Data.rankA2 = [];
 
 % With QP
 %[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1, q0, qdot0, io);
@@ -31,13 +41,13 @@ io.Data.fval3 = [];
 % [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b, q0, qdot0, io);
 
 % With QP reformulated, qpOASES solver
-[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b_qpOASES, q0, qdot0, io);
+% [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b_qpOASES, q0, qdot0, io);
 
 %Without QP
-%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_2, q0, qdot0, io);
+[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_2b, q0, qdot0, io);
 
 %Without QP
-%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_0, q0, qdot0, io);
+% [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_0, q0, qdot0, io);
 
 
 % Compute FK
