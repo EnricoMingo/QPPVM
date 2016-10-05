@@ -7,10 +7,6 @@ function tau = control_law_2b(robot, t, q, qdot, io)
 %% Actual information from the robot
 Tq = robot.fkine(q); % pose
 J = robot.jacob0(q); % Jacobian
-Jdot = zeros(6,6);
-if t > 0
-    Jdot = (J - io.Data.J_previous)/(t - io.Data.t_previous);
-end
 io.Data.J_previous = J;
 io.Data.t_previous = t;
 io.Data.JacobRank = [io.Data.JacobRank rank(J)];
@@ -37,22 +33,18 @@ Kd1 = 300;
 
 x1 = Tq(3,4);
 J1 = J(3,:);
-J1dot = Jdot(3,:);
 x1dot = J1*qdot';
 f1 = -Kp1*(x1-x1ref) - Kd1*x1dot;
-% f1 = f1 - inv(J1*Binv*J1')*(J1dot*qdot');
 
 %% Reference for Secondary task (the secondary task is a Cartesian Position Task)
 Kp2 = 15000;
 Kd2 = 300;
 
-x2ref = [0.2 0.2 0.0]';
-x2 = Tq(1:3,4);
-J2 = J(1:3,:);
-J2dot = Jdot(1:3,:);
+x2ref = [0.5 0.5]';
+x2 = Tq(1:2,4);
+J2 = J(1:2,:);
 x2dot = J2*qdot';
 f2 = -Kp2*(x2-x2ref) - Kd2*x2dot;
-% f2 = f2 - inv(J2*Binv*J2')*(J2dot*qdot');
 
 xref = [x2ref; x1ref];
 io.Data.xref = [io.Data.xref xref];
@@ -86,11 +78,17 @@ io.Data.e2 = [io.Data.e2 J2*Binv*tau1-J2*Binv*J2'*f2];
 % io.Data.rankA1 = [io.Data.rankA1 rank(A1)];
 % io.Data.rankA2 = [io.Data.rankA2 rank(A2)];
 
+
+% for i = 1:1:length(tau1)
+%     if tau1(i) >= 100
+%         tau1(i) = 100;
+%     elseif tau1(i) <= -100
+%         tau1(i) = -100;
+%     end
+% end
+
 tau = tau1';
 
-
-
-tau = tau + (robot.coriolis(q, qdot)*qdot')' + robot.gravload(q)
 io.Data.tau = tau;
 
 
