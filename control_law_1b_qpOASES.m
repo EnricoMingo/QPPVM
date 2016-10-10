@@ -15,8 +15,8 @@ function tau = control_law_1b_qpOASES(robot, t, q, qdot, io)
 %% Actual information from the robot
 Tq = robot.fkine(q); % pose
 J = robot.jacob0(q); % Jacobian
-%B = eye(6,6);
-B = robot.inertia(q); % Inertia
+B = eye(6,6);
+%B = robot.inertia(q); % Inertia
 %C = robot.coriolis(q,qdot)*qdot';
 %g = robot.gravload(q);
 Binv = inv(B); 

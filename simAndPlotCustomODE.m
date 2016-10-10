@@ -41,10 +41,10 @@ io.Data.rankA2 = [];
 % [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b, q0, qdot0, io);
 
 % With QP reformulated, qpOASES solver
-% [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b_qpOASES, q0, qdot0, io);
+ [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b_qpOASES, q0, qdot0, io);
 
 %Without QP
-[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_2b, q0, qdot0, io);
+% [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_2b, q0, qdot0, io);
 
 %Without QP
 % [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_0, q0, qdot0, io);
