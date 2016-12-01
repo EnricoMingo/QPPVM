@@ -1,5 +1,5 @@
-function tau = control_law_1b_qpOASES(robot, t, q, qdot, io)
-%% control_law_1b 
+function tau = control_law_1b_qpOASES_dyn(robot, t, q, qdot, io)
+%% control_law_1b_qpOASES_dyn 
 % Uses a QP to solve the problem to find joint torques that realizes a
 % certain Cartesian Force at the end-effector considering also low priority
 % tasks and inequality constraints.
@@ -15,11 +15,14 @@ function tau = control_law_1b_qpOASES(robot, t, q, qdot, io)
 %% Actual information from the robot
 Tq = robot.fkine(q); % pose
 J = robot.jacob0(q); % Jacobian
-%B = eye(6,6);
 B = robot.inertia(q); % Inertia
-%C = robot.coriolis(q,qdot)*qdot';
-%g = robot.gravload(q);
-Binv = inv(B); 
+C = robot.coriolis(q,qdot)*qdot';
+g = robot.gravload(q);
+Binv = inv(B);
+M = pinv(J*Binv*J');
+
+Jd = robot.jacob_dot(q, qdot); 
+MJd = M*Jd;
 
 taumax = [1 1 1 1 1 1]'*100;% Max allowed torques
 taumin = -taumax; % Min allowed torques
@@ -27,8 +30,8 @@ if t == 0
     io.Data.taumax = taumax;
     io.Data.taumin = taumin;
 end
-umin = taumin;
-umax = taumax;
+umin = taumin-(C' + g)';
+umax = taumax-(C' + g)';
 
 
 %% Reference Trajectory for Main Task (the main task is a Cartesian Position Trj Task)
@@ -42,10 +45,7 @@ Kd1 = 300;
 x1 = Tq(3,4);
 J1 = J(3,:);
 x1dot = J1*qdot';
-%Jdot = robot.jacob_dot(q,qdot);
-%u = (Binv*J1'*inv(J1*Binv*J1'))'*C-inv(J1*Binv*J1')*Jdot(3,:);
-%p = (Binv*J1'*inv(J1*Binv*J1'))'*g';
-f1 = -Kp1*(x1-x1ref) - Kd1*x1dot;% + u + p;
+f1 = -Kp1*(x1-x1ref) - Kd1*x1dot - 0*MJd(3);
 
 
 %% Reference for Secondary task (the secondary task is a Cartesian Position Task)
@@ -57,7 +57,7 @@ x2ref = [1.0 1.0]';
 x2 = Tq(1:2,4);
 J2 = J(1:2,:);
 x2dot = J2*qdot';
-f2 = -Kp2*(x2-x2ref) - Kd2*x2dot;
+f2 = -Kp2*(x2-x2ref) - Kd2*x2dot - 0*MJd(1:2);
 
 xref = [x2ref(1:2); x1ref];
 io.Data.xref = [io.Data.xref xref];
@@ -95,7 +95,7 @@ io.Data.fval2 = [io.Data.fval2 fval];
 % [tau1,fval,exitflag,iter,lambda,auxOutput] = qpOASES(Q3,c3',A3,umin,umax,b3,b3, options);
 % io.Data.fval3 = [io.Data.fval3 fval];
 
-tau = tau1';% + C' + g;
+tau = tau1' + C' + g;
 
 
 
@@ -104,6 +104,4 @@ if mod(t,1) == 0
 end
 
 
-
 end
-
