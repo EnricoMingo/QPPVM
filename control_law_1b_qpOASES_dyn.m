@@ -19,7 +19,15 @@ B = robot.inertia(q); % Inertia
 C = robot.coriolis(q,qdot)*qdot';
 g = robot.gravload(q);
 Binv = inv(B);
-M = pinv(J*Binv*J');
+%M = pinv(J*Binv*J');
+A = J*Binv*J';
+
+w = sqrt(det(J*J'));
+k = 0.;
+if(w < io.Data.w0)
+    k = 20.*(1-w/io.Data.w0)^2;
+end
+M = A'*inv(A*A' + k*eye(6,6));
 
 Jd = robot.jacob_dot(q, qdot); 
 MJd = M*Jd;
@@ -38,6 +46,9 @@ umax = taumax-(C' + g)';
 period = 2;
 amplitude = 0.3;
 x1ref = amplitude*sin(2*pi/period*t);
+dx1ref = amplitude*(2*pi/period)*cos(2*pi/period*t);
+ddx1ref = [0;0;-amplitude*(2*pi/period)^2*sin(2*pi/period*t); 0; 0; 0];
+Mddx1ref = M*ddx1ref;
 
 Kp1 = 15000;
 Kd1 = 300;
@@ -45,7 +56,7 @@ Kd1 = 300;
 x1 = Tq(3,4);
 J1 = J(3,:);
 x1dot = J1*qdot';
-f1 = -Kp1*(x1-x1ref) - Kd1*x1dot - 0*MJd(3);
+f1 = -Kp1*(x1-x1ref) - Kd1*(x1dot-dx1ref) - MJd(3) + Mddx1ref(3);
 
 
 %% Reference for Secondary task (the secondary task is a Cartesian Position Task)
@@ -57,7 +68,7 @@ x2ref = [1.0 1.0]';
 x2 = Tq(1:2,4);
 J2 = J(1:2,:);
 x2dot = J2*qdot';
-f2 = -Kp2*(x2-x2ref) - Kd2*x2dot - 0*MJd(1:2);
+f2 = -Kp2*(x2-x2ref) - Kd2*x2dot - MJd(1:2);
 
 xref = [x2ref(1:2); x1ref];
 io.Data.xref = [io.Data.xref xref];

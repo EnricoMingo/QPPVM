@@ -15,7 +15,10 @@ qdot0 = q0*0;   % Initial velocity
 % I/O handler
 io = ControllerIO();
 
+w0 = sqrt(det(robot.jacob0(q0)*robot.jacob0(q0)'));
+
 % Initial configuration inertia matrix
+io.Data.w0 = w0;
 io.Data.B0 = robot.inertia(q0);
 io.Data.q0 = q0;
 io.Data.J_previous = robot.jacob0(q0);
