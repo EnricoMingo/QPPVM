@@ -20,14 +20,15 @@ C = robot.coriolis(q,qdot)*qdot';
 g = robot.gravload(q);
 Binv = inv(B);
 %M = pinv(J*Binv*J');
-A = J*Binv*J';
-
-w = sqrt(det(J*J'));
-k = 0.;
-if(w < io.Data.w0)
-    k = 20.*(1-w/io.Data.w0)^2;
-end
-M = A'*inv(A*A' + k*eye(6,6));
+% A = J*Binv*J';
+% 
+% w = sqrt(det(J*J'));
+% k = 0.;
+% if(w < io.Data.w0)
+%     k = 20.*(1-w/io.Data.w0)^2;
+% end
+% M = A'*inv(A*A' + k*eye(6,6));
+M = computeCartesianInertiaMatrix(B, J);
 
 Jd = robot.jacob_dot(q, qdot); 
 MJd = M*Jd;
