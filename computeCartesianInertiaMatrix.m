@@ -30,9 +30,9 @@ Aeq = [0 1 0 0 0 0 -1 zeros(1, 36-7);
        0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 -1 0];
 beq = zeros(1,15);
 
-options = qpOASES_options( 'MPC' );
-options.numRegularisationSteps = 3;
-options.epsRegularisation = 10.;
+options = qpOASES_options( 'reliable' );
+options.numRegularisationSteps = 2;
+options.epsRegularisation = 1e-2;
 m = qpOASES(H,b,Aeq,[],[],beq',beq', options);
 
 

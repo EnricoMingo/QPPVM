@@ -19,7 +19,7 @@ B = robot.inertia(q); % Inertia
 C = robot.coriolis(q,qdot)*qdot';
 g = robot.gravload(q);
 Binv = inv(B);
-%M = pinv(J*Binv*J');
+%M_ = pinv(J*Binv*J');
 % A = J*Binv*J';
 % 
 % w = sqrt(det(J*J'));
@@ -29,6 +29,16 @@ Binv = inv(B);
 % end
 % M = A'*inv(A*A' + k*eye(6,6));
 M = computeCartesianInertiaMatrix(B, J);
+
+
+%if abs(det(J)) < 1e-4
+%    detJ = det(J)
+%    M_
+%    M_norm = norm(M_*M_')
+%    M
+%    Mnorm = norm(M*M')
+%    error('J near loosing rank');
+%end
 
 Jd = robot.jacob_dot(q, qdot); 
 MJd = M*Jd;
