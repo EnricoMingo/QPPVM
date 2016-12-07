@@ -31,8 +31,9 @@ Aeq = [0 1 0 0 0 0 -1 zeros(1, 36-7);
 beq = zeros(1,15);
 
 options = qpOASES_options( 'reliable' );
-options.numRegularisationSteps = 2;
-options.epsRegularisation = 1e-2;
+options.enableRegularisation = 1;
+options.numRegularisationSteps = 10;
+options.epsRegularisation = 0.001/abs(det(J));
 m = qpOASES(H,b,Aeq,[],[],beq',beq', options);
 
 

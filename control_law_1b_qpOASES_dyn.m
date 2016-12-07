@@ -19,26 +19,11 @@ B = robot.inertia(q); % Inertia
 C = robot.coriolis(q,qdot)*qdot';
 g = robot.gravload(q);
 Binv = inv(B);
-%M_ = pinv(J*Binv*J');
-% A = J*Binv*J';
-% 
-% w = sqrt(det(J*J'));
-% k = 0.;
-% if(w < io.Data.w0)
-%     k = 20.*(1-w/io.Data.w0)^2;
-% end
-% M = A'*inv(A*A' + k*eye(6,6));
+
+M_ = pinv(J*Binv*J');
 M = computeCartesianInertiaMatrix(B, J);
-
-
-%if abs(det(J)) < 1e-4
-%    detJ = det(J)
-%    M_
-%    M_norm = norm(M_*M_')
-%    M
-%    Mnorm = norm(M*M')
-%    error('J near loosing rank');
-%end
+io.Data.Mtrace = [io.Data.Mtrace trace(M)];
+io.Data.M_trace = [io.Data.M_trace trace(M_)];
 
 Jd = robot.jacob_dot(q, qdot); 
 MJd = M*Jd;
@@ -58,7 +43,7 @@ period = 2;
 amplitude = 0.3;
 x1ref = amplitude*sin(2*pi/period*t);
 dx1ref = amplitude*(2*pi/period)*cos(2*pi/period*t);
-ddx1ref = [0;0;-amplitude*(2*pi/period)^2*sin(2*pi/period*t); 0; 0; 0];
+ddx1ref = [0;0;-amplitude*((2*pi/period)^2)*sin(2*pi/period*t); 0; 0; 0];
 Mddx1ref = M*ddx1ref;
 
 Kp1 = 15000;
@@ -107,15 +92,16 @@ b2 = J1*Binv*tau1; % Optimality condition
 io.Data.fval2 = [io.Data.fval2 fval];
 
 % % Solution of a Third Task in Joint space (Joint Torque minimzation)
-% K = 1000;
-% D = 100;
-% tau0 = K*(zeros(1,6)-q)-D*qdot;
-% Q3 = eye(6)*Binv;
-% c3 = -tau0*Binv;
-% A3 = [J1*Binv; J2*Binv]; %Optimality Condition
-% b3 = A3*tau1; %Optimality Condition
-% [tau1,fval,exitflag,iter,lambda,auxOutput] = qpOASES(Q3,c3',A3,umin,umax,b3,b3, options);
-% io.Data.fval3 = [io.Data.fval3 fval];
+K = 10000;
+D = 500;
+qd = zeros(1,6);
+tau0 = K*(qd-q) - D*qdot - (Binv*qdot')';
+Q3 = eye(6)*Binv;
+c3 = -tau0*Binv;
+A3 = [J1*Binv; J2*Binv]; %Optimality Condition
+b3 = A3*tau1; %Optimality Condition
+[tau1,fval,exitflag,iter,lambda,auxOutput] = qpOASES(Q3,c3',A3,umin,umax,b3,b3, options);
+io.Data.fval3 = [io.Data.fval3 fval];
 
 tau = tau1' + C' + g;
 

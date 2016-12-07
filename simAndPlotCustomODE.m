@@ -37,6 +37,9 @@ io.Data.rankM1 = [];
 io.Data.rankA1 = [];
 io.Data.rankA2 = [];
 
+io.Data.Mtrace = [];
+io.Data.M_trace = [];
+
 % With QP
 %[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1, q0, qdot0, io);
 
