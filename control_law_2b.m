@@ -12,7 +12,6 @@ io.Data.t_previous = t;
 io.Data.JacobRank = [io.Data.JacobRank rank(J)];
 
 
-
 B = robot.inertia(q); % Inertia
 %B = eye(6,6);
 Binv = inv(B);
@@ -40,7 +39,7 @@ f1 = -Kp1*(x1-x1ref) - Kd1*x1dot;
 Kp2 = 15000;
 Kd2 = 300;
 
-x2ref = [0.5 0.5]';
+x2ref = [1. 1.]';
 x2 = Tq(1:2,4);
 J2 = J(1:2,:);
 x2dot = J2*qdot';
