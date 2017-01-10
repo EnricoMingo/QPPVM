@@ -51,10 +51,10 @@ io.Data.M_trace = [];
 %[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b_qpOASES, q0, qdot0, io);
 
 % With QP reformulated, qpOASES solver
-%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b_qpOASES_dyn, q0, qdot0, io);
+[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_1b_qpOASES_dyn, q0, qdot0, io);
 
 %Without QP
-[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_2b, q0, qdot0, io);
+%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_2b, q0, qdot0, io);
 
 %Without QP
 % [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_0, q0, qdot0, io);
@@ -106,6 +106,3 @@ end
 
 figure
 robot.plot(q(1:10:end,:))
-
-figure
-plot(det(robot.jacob0(q)));
