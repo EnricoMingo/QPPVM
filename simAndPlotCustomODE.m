@@ -1,3 +1,5 @@
+%This is the main simulation script where is possible to select the control type to run
+
 close all
 clear all
 clc
