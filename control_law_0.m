@@ -1,6 +1,10 @@
 function tau = control_law_0( robot, t, q, qdot, io )
-%CONTROL_LAW_0 Summary of this function goes here
-%   Detailed explanation goes here
+%CONTROL_LAW_0 computes the desired torques given:
+%
+%      F = K(xd - x) - Dxdot
+%as:
+%
+%      tau = J'F
 
 %% Actual information from the robot
 Tq = robot.fkine(q);
