@@ -59,7 +59,7 @@ io.Data.M_trace = [];
 %[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_2b, q0, qdot0, io);
 
 %Without QP
-% [t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_0, q0, qdot0, io);
+%[t, q, qdot, tau] = customDynamicsIntegration(robot.nofriction(), Tsim, dt, @control_law_0, q0, qdot0, io);
 
 
 % Compute FK
